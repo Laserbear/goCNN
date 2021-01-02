@@ -1,4 +1,4 @@
-package main
+package CNN
 
 import (
 	"fmt"
@@ -28,7 +28,6 @@ func main() {
 			fmt.Printf(" ")
 		}
 	}
-	//fmt.Printf("%v", matrix[:rows][:cols])
 
 	var slice = [3]uint8{}
 	for i:= 0; i < rows; i++  {
@@ -36,7 +35,7 @@ func main() {
 			for l := 0; l < 3; l++ {
 				slice[l] = matrix[i][j+l]
 			}
-			Dx[i][j] = dotproduct(slice, K)
+			Dx[i][j] = int_dotproduct(slice, K)
 		}
 	}
 
@@ -45,18 +44,13 @@ func main() {
 			for l := 0; l < 3; l++ {
 				slice[l] = matrix[i+l][j]
 			}
-			Dy[j][i] = dotproduct(slice, K)
+			Dy[j][i] = int_dotproduct(slice, K)
 
 		}
 	}
 
-	// This is so wrong lmao Dx and Dy should be 2D
-	fmt.Printf("Dx%v\n", Dx[:rows])
-	fmt.Printf("Dy%v\n", Dy[:cols])
-
-
 }
-func dotproduct(A [3]uint8, B []int) (dotproduct int) {
+func int_dotproduct(A [3]uint8, B []int) (dotproduct int) {
 	sum := 0
 	for i := range A {
 		sum += int(A[i]) * B[i]
