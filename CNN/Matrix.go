@@ -6,29 +6,24 @@ import (
 )
 
 type Matrix struct {
-	values []float64
+	values     []float64
 	dimensions [2]uint
-	length uint
+	length     uint
 }
 
 func (m1 Matrix) multiplyMatrix(m2 Matrix) Matrix {
-	if (m2.dimensions[0] == 1 && m2.dimensions[1] == 1) {
-		// this is pretty jank but I need the layer struct to work for both activation and FC so I need to cast a float
-		// to a 1D matrix then use that for backprop with matrix-typed error
-		return m1.multiplyFloat(m2.values[0])
-	}
-	if (m1.dimensions[0] == 1 && m1.dimensions[1] == 1) {
-		return m2.multiplyFloat(m1.values[0])
+	if m1.dimensions[1] != m2.dimensions[0] {
+		panic(fmt.Sprintf("It's all a goddamn farce, matrix with dimension %v cannot be multiplied with matrix of dimension %v\n", m1.dimensions, m2.dimensions))
 	}
 	productMatrixLength := uint(m1.dimensions[0] * m2.dimensions[1])
-	productMatrixValues := make([]float64,productMatrixLength)
+	productMatrixValues := make([]float64, productMatrixLength)
 	m2Transpose := m2.transpose()
 	fmt.Printf("Tranpose values: %v\n", m2Transpose.values)
 
 	for i := uint(0); i < m1.dimensions[0]; i++ {
 		for j := uint(0); j < m2.dimensions[1]; j++ {
 			vector_length := m1.dimensions[1] //length of vector to dotproduct
-			productMatrixValues[i*m2.dimensions[1] + j ] = dotproduct(
+			productMatrixValues[i*m2.dimensions[1]+j] = dotproduct(
 				m1.values[i*vector_length:i*vector_length+vector_length], m2Transpose.values[j*vector_length:j*vector_length+vector_length])
 		}
 	}
@@ -53,7 +48,10 @@ func (m Matrix) transpose() Matrix {
 	return Matrix{values: tranposedMatrixValues, dimensions: [2]uint{m.dimensions[1], m.dimensions[0]}, length: m.length}
 }
 
-func (m1 Matrix) add(m2 Matrix) Matrix { //check same dimensions, very brittle
+func (m1 Matrix) add(m2 Matrix) Matrix {
+	if m1.dimensions[0] != m2.dimensions[0] || m1.dimensions[1] != m2.dimensions[1] {
+		panic(fmt.Sprintf("Why god why? you can't add a matrix of dimension %v with a matrix of dimension %v!\n", m1.dimensions, m2.dimensions))
+	}
 	summedMatrixValues := make([]float64, m1.length)
 	for i := uint(0); i < m1.length; i++ {
 		summedMatrixValues[i] = m1.values[i] + m2.values[i]
@@ -61,21 +59,22 @@ func (m1 Matrix) add(m2 Matrix) Matrix { //check same dimensions, very brittle
 	return Matrix{values: summedMatrixValues, dimensions: m1.dimensions, length: m1.length}
 }
 
-func (m Matrix) multiplyFloat (s float64) Matrix {
-	productMatrixValues := make([]float64,m.length)
+func (m Matrix) multiplyFloat(s float64) Matrix {
+	productMatrixValues := make([]float64, m.length)
 	for i := uint(0); i < m.length; i++ {
 		productMatrixValues[i] = m.values[i] * s
 	}
-	return  Matrix{values: productMatrixValues, dimensions: m.dimensions, length: m.length}
+	return Matrix{values: productMatrixValues, dimensions: m.dimensions, length: m.length}
 }
 
-func randomFloatMatrix(m uint, n uint) Matrix{
+func randomFloatMatrix(m uint, n uint) Matrix {
 	values := make([]float64, m*n)
 	for i := uint(0); i < m*n; i++ {
 		values[i] = rand.Float64()
 	}
-	return Matrix{values: values, dimensions: [2]uint{m, n}, length: m*n}
+	return Matrix{values: values, dimensions: [2]uint{m, n}, length: m * n}
 }
+
 /**
 func main () {
 	testMatrix := Matrix{values: []float64{1, 0, 0, 0, 1, 0, 0, 0, 1}, dimensions: [2]uint{3, 3}, length: 9}

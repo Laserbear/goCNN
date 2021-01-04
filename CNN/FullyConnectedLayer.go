@@ -2,18 +2,16 @@ package CNN
 
 type FullyConnectedLayer struct {
 	weights Matrix
-	input Matrix
-	bias Matrix
+	input   Matrix
+	bias    Matrix
 }
 
-
-func (fc FullyConnectedLayer) ForwardPass (input Matrix) Matrix {
+func (fc *FullyConnectedLayer) ForwardPass(input Matrix) Matrix {
 	fc.input = input
 	return fc.weights.multiplyMatrix(input).add(fc.bias)
 }
 
-
-func (fc FullyConnectedLayer) BackPropMatrix (outputError Matrix, alpha float64) Matrix {
+func (fc *FullyConnectedLayer) BackPropMatrix(outputError Matrix, alpha float64) Matrix {
 	inputError := outputError.multiplyMatrix(fc.weights.transpose())
 	weightsError := fc.input.transpose().multiplyMatrix(outputError)
 
@@ -22,6 +20,3 @@ func (fc FullyConnectedLayer) BackPropMatrix (outputError Matrix, alpha float64)
 
 	return inputError
 }
-
-
-

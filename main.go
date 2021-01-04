@@ -1,8 +1,5 @@
 package main
 
-import(
-	CNN "CNN"
-)
 
 func main() {
 	//disgusting but should learn XOR
@@ -15,14 +12,14 @@ func main() {
 	label01 := Matrix{values: []float64{1}, dimensions: [2]uint{1, 1}, length: 1}
 	label10 := Matrix{values: []float64{1}, dimensions: [2]uint{1, 1}, length: 1}
 	label11 := Matrix{values: []float64{0}, dimensions: [2]uint{1, 1}, length: 1}
-	x_data := []Matrix {Matrix00, Matrix01, Matrix10, Matrix11}
+	x_data := []Matrix{Matrix00, Matrix01, Matrix10, Matrix11}
 	y_labels := []Matrix{label00, label01, label10, label11}
-	net := Network{layers:[]layer{}, loss: mse, lossPrime: msePrime}
-	net.AddLayer(fullyConnectedLayer{weights:randomFloatMatrix(2, 3), bias: randomFloatMatrix(1, 3)})
-	net.AddLayer(activationLayer{activation: ReLUMatrix, activationPrime: ReLUMatrix})
-	net.AddLayer(fullyConnectedLayer{weights:randomFloatMatrix(3, 1), bias: randomFloatMatrix(1, 1)})
-	net.AddLayer(activationLayer{activation: ReLUMatrix, activationPrime: ReLUMatrix})
-	net.SetLoss(mse, msePrime)
+	net := Network{layers: []layer{}, loss: Mse, lossPrime: MsePrime}
+	net.AddLayer(FullyConnectedLayer{weights: randomFloatMatrix(2, 3), bias: randomFloatMatrix(1, 3)})
+	net.AddLayer(ActivationLayer{activation: ReLUMatrix, activationPrime: ReLUMatrix})
+	net.AddLayer(FullyConnectedLayer{weights: randomFloatMatrix(3, 1), bias: randomFloatMatrix(1, 1)})
+	net.AddLayer(ActivationLayer{activation: ReLUMatrix, activationPrime: ReLUMatrix})
+	net.SetLoss(Mse, MsePrime)
 	net.Fit(x_data, y_labels, 1000, 0.01)
 
 }

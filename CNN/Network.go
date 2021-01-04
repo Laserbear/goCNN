@@ -5,63 +5,61 @@ import (
 )
 
 type Network struct {
-	layers []layer
-	loss func(true Matrix, predicted Matrix) float64
+	layers    []layer
+	loss      func(true Matrix, predicted Matrix) float64
 	lossPrime func(true Matrix, predicted Matrix) float64
 }
 
 type layer interface {
-	forwardPass(input Matrix) Matrix
-	backPropMatrix (outputError Matrix, alpha float64) Matrix
+	ForwardPass(input Matrix) Matrix
+	BackPropMatrix(outputError Matrix, alpha float64) Matrix
 }
 
-func (n Network) AddLayer(l layer) {
+func (n *Network) AddLayer(l layer) {
 	n.layers = append(n.layers, l)
 }
 
-func (n Network) SetLoss(
-	loss func(true Matrix, predicted Matrix) float64,lossPrime func(true Matrix, predicted Matrix) float64) {
+func (n *Network) SetLoss(
+	loss func(true Matrix, predicted Matrix) float64, lossPrime func(true Matrix, predicted Matrix) float64) {
 	n.loss = loss
 	n.lossPrime = lossPrime
 }
 
-func Mse (true Matrix, predicted Matrix) float64{
+func Mse(true Matrix, predicted Matrix) float64 {
 	sum := float64(0)
 	for i := uint(0); i < true.length; i++ {
 		sum += (true.values[i] - predicted.values[i]) * (true.values[i] - predicted.values[i])
 	}
-	return sum/float64(true.length)
+	return sum / float64(true.length)
 }
-func MsePrime (true Matrix, predicted Matrix) float64{
+func MsePrime(true Matrix, predicted Matrix) float64 {
 	sum := float64(0)
 	for i := uint(0); i < true.length; i++ {
 		sum += (true.values[i] - predicted.values[i]) * (true.values[i] - predicted.values[i])
 	}
-	return sum/float64(true.length)
+	return sum / float64(true.length)
 }
 
-
-func (n Network) predict (input Matrix) Matrix {
+func (n *Network) Predict(input Matrix) Matrix { // do i need a pointer here?
 	output := input
-	for i:= 0; i < len(n.layers); i++ {
-		output = n.layers[i].forwardPass(input)
+	for i := 0; i < len(n.layers); i++ {
+		output = n.layers[i].ForwardPass(input)
 	}
 	return output
 }
 
-func (n Network) fit (xTrain []Matrix, yTrain []Matrix, epochs uint, alpha float64) {
-	for i := uint(0); i < epochs; i ++ {
+func (n *Network) Fit(xTrain []Matrix, yTrain []Matrix, epochs uint, alpha float64) {
+	for i := uint(0); i < epochs; i++ {
 		displayError := float64(0)
 		for j := range xTrain {
-			output := n.predict(xTrain[j])
+			output := n.Predict(xTrain[j])
 			displayError += n.loss(yTrain[j], output)
 
 			realError := Matrix{values: []float64{n.lossPrime(yTrain[j], output)}, dimensions: [2]uint{1, 1}, length: 1}
 
-			for i:= len(n.layers) - 1; i >= 0; i-- {
-				realError = n.layers[i].backPropMatrix(realError, alpha)
+			for i := len(n.layers) - 1; i >= 0; i-- {
+				realError = n.layers[i].BackPropMatrix(realError, alpha)
 			}
-
 
 			fmt.Printf("Error is %v", displayError/float64(len(xTrain)))
 		}
@@ -83,4 +81,3 @@ func ReLUMatrix(m Matrix) Matrix {
 	}
 	return Matrix{values: values, dimensions: m.dimensions, length: m.length}
 }
-
